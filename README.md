@@ -16,6 +16,16 @@ The exhibit on the first page of every fund's investor letter: a diversified 10-
 
 > Results embedded in the committed notebook come from the deterministic **synthetic** data path (so the repo renders end-to-end with no keys). Re-run the notebook in Google Colab for live-market numbers — the notebook prints which data path is active.
 
+### 2. [Semiconductor Portfolio Tear Sheet](./Semiconductor%20Portfolio%20Tear%20Sheet)
+
+The same tear-sheet engine applied to a concentrated, **real-data** book of four semiconductor/tech names — **NVDA, AMD, AAPL, MU** — equal-weight, monthly-rebalanced, vs SPY (2014–2024). A case study in high-return, high-risk concentration, honestly framed by its selection bias.
+
+![Hero tear sheet](./Semiconductor%20Portfolio%20Tear%20Sheet/outputs/semiconductor_tear_sheet_hero.png)
+
+- **Notebook:** [`semiconductor_tear_sheet.ipynb`](./Semiconductor%20Portfolio%20Tear%20Sheet/semiconductor_tear_sheet.ipynb) — embeds **real** Yahoo Finance data via a keyless chart-API layer (synthetic fallback if offline).
+- **Headline (real, net of costs):** 41.0% CAGR at 35.4% volatility → Sharpe **1.09** vs SPY's 0.69, but a **−49.5%** max drawdown; CAPM alpha +20.4%/yr (t=3.07), beta 1.54.
+- **Honest caveat:** these four are hindsight-selected decade winners — the alpha is selection bias, not a repeatable strategy (see the notebook's Limitations).
+
 ## How to run any project
 
 Open the project's `.ipynb` in [Google Colab](https://colab.research.google.com/) and choose **Runtime → Run all**. No API keys are required; each notebook degrades gracefully to a labeled synthetic dataset and writes its figures/tables to that project's `outputs/` folder.
