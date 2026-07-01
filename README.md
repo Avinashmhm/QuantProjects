@@ -4,7 +4,7 @@ Quantitative finance work in Python (pandas, numpy, scipy, statsmodels, matplotl
 
 ## 1. Tear sheets
 
-Standalone performance and risk tear sheets for six individual series (SPY, the S&P 500 index, NVDA, AMD, AAPL, and MU), each built from real Yahoo Finance data over 2014 to 2024.
+Standalone performance and risk tear sheets for 18 individual series across the AI and semiconductor ecosystem, each built from real Yahoo Finance data. The set covers broad-market baselines (SPY, the S&P 500 index), semiconductor ETFs (SMH, SOXX), AI-themed ETFs (AIQ, BOTZ), AI chip and hardware makers (NVDA, AMD, AVGO, TSM, MU), and AI platform and software names (MSFT, GOOGL, AMZN, META, AAPL, ORCL, PLTR).
 
 [View all tear sheets](./Tear%20Sheets)
 
