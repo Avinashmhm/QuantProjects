@@ -1,0 +1,15 @@
+# macOS
+.DS_Store
+
+# Data caches (regenerated on run)
+.quant_cache/
+**/.quant_cache/
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Local venvs
+.venv/
+venv/
