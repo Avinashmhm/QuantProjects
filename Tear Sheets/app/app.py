@@ -27,8 +27,10 @@ st.set_page_config(page_title="Tear Sheet Generator", page_icon=":chart_with_upw
                    layout="wide")
 
 st.title("Performance Tear Sheet Generator")
-st.caption("Enter any ticker for a house-style performance and risk tear sheet. "
-           "Data: Yahoo Finance adjusted close, cached locally after the first fetch.")
+st.caption("Enter any Yahoo Finance symbol for a house-style performance and risk tear sheet: "
+           "stocks and ETFs (NVDA, SPY), indexes with a caret (^GSPC, ^IXIC, ^VIX), "
+           "futures with =F (ES=F, GC=F, CL=F), and crypto pairs (BTC-USD). "
+           "Data: Yahoo Finance adjusted close, cached after the first fetch.")
 
 with st.form("inputs"):
     c1, c2, c3, c4 = st.columns([1.2, 1.2, 1, 1])
