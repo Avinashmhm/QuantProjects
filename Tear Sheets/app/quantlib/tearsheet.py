@@ -46,7 +46,7 @@ def rolling_sharpe(returns: pd.Series, window: int = 126,
 
 
 def monthly_table(returns: pd.Series) -> pd.DataFrame:
-    m = returns.resample("M").apply(lambda s: (1 + s).prod() - 1.0)
+    m = returns.resample("ME").apply(lambda s: (1 + s).prod() - 1.0)
     df = m.to_frame("ret")
     df["Year"], df["Month"] = df.index.year, df.index.month
     return df.pivot(index="Year", columns="Month", values="ret")

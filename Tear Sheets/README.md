@@ -6,7 +6,9 @@ The notebook that produces all of these is [`tear_sheets.ipynb`](tear_sheets.ipy
 
 ## Interactive tear sheet app
 
-The [`app/`](app/) folder contains a Streamlit web app that generates the same house tear sheet on demand for any ticker: type a symbol, optionally pick a benchmark ticker and a date range, and the exhibit renders in the browser with an interactive chart panel, the full metrics table, and a PNG download. Bad tickers get a clear error rather than a chart of fallback data.
+Live at [performancesheet.streamlit.app](https://performancesheet.streamlit.app).
+
+The [`app/`](app/) folder contains the Streamlit web app behind it, which generates the same house tear sheet on demand for any ticker: type a symbol, optionally pick a benchmark ticker and a date range, and the exhibit renders in the browser with an interactive chart panel, the full metrics table, and a PNG download. Bad tickers get a clear error rather than a chart of fallback data.
 
 To run it locally from the repo root:
 

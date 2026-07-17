@@ -8,6 +8,8 @@ Standalone performance and risk tear sheets for 28 widely-followed stocks, ETFs,
 
 [View all tear sheets](./Tear%20Sheets)
 
+Live web app: [performancesheet.streamlit.app](https://performancesheet.streamlit.app) generates the same tear sheet on demand for any ticker, with an optional benchmark comparison.
+
 ## Built with
 
 Python, pandas, numpy, scipy, statsmodels, matplotlib, seaborn.
