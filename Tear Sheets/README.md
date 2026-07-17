@@ -4,6 +4,19 @@ Standalone tear sheets for a range of widely-followed stocks, ETFs, and funds, e
 
 The notebook that produces all of these is [`tear_sheets.ipynb`](tear_sheets.ipynb). It runs with no API keys and prints which data path is active.
 
+## Interactive tear sheet app
+
+The [`app/`](app/) folder contains a Streamlit web app that generates the same house tear sheet on demand for any ticker: type a symbol, optionally pick a benchmark ticker and a date range, and the exhibit renders in the browser with an interactive chart panel, the full metrics table, and a PNG download. Bad tickers get a clear error rather than a chart of fallback data.
+
+To run it locally from the repo root:
+
+```
+pip install -r requirements.txt
+streamlit run "Tear Sheets/app/app.py"
+```
+
+To deploy it free on [Streamlit Community Cloud](https://share.streamlit.io), point a new app at this repo with `Tear Sheets/app/app.py` as the main file path.
+
 ## Summary statistics
 
 Sharpe and Sortino use a flat 2% annual risk-free rate. HAC t is the Newey-West t-statistic that the mean daily return differs from zero (above about 2 is significant at the 5% level). Some series have shorter histories because they launched after 2014 (AIQ 2018, BOTZ 2016, PLTR and COIN 2020 to 2021), so their statistics cover a shorter window.
