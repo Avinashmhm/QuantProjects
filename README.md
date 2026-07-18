@@ -10,6 +10,16 @@ Live app: [performancesheet.streamlit.app](https://performancesheet.streamlit.ap
 
 The project folder also holds a gallery of 28 pre-generated tear sheets for widely followed stocks, ETFs, and funds, with summary statistics and Newey-West significance tests.
 
+## 2. Macro nowcasting and recession dashboard
+
+A Streamlit web app that estimates the probability of a US recession within a chosen horizon from live FRED data: a logistic regression on the Treasury yield curve and a leading-indicator set (credit spreads, payrolls, jobless claims, building permits, consumer sentiment), with a probability gauge, an animated yield curve covering five decades, the Sahm Rule, and a hand-built financial-conditions index checked against the Chicago Fed NFCI. The model is evaluated honestly: features shifted to publication time, an embargoed 2006-to-present holdout, Newey-West standard errors, and a per-recession warning record that shows the misses as well as the hits.
+
+Live app: [macronowcast.streamlit.app](https://macronowcast.streamlit.app) | [Code and project folder](./Macro%20Nowcasting)
+
+The project folder also holds the full research notebook behind the app, with data validation, leakage audits, robustness checks, and a limitations section covering data-revision bias.
+
+![Macro dashboard](./Macro%20Nowcasting/macro_hero_dashboard.png)
+
 ## Built with
 
-Python, pandas, numpy, scipy, statsmodels, matplotlib, seaborn.
+Python, pandas, numpy, scipy, statsmodels, matplotlib, seaborn, plotly, Streamlit.
