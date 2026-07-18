@@ -13,7 +13,7 @@ A single-page Streamlit web app that turns the existing batch tear sheet pipelin
 ## 3. SLC Definition
 
 - **Simple:** one page, four inputs (ticker, benchmark on/off, benchmark ticker, date range), one button. No accounts, no saved state, no settings pages.
-- **Lovable:** the interactive Plotly tear sheet renders inline with hover detail, headline stats show as metric tiles, and a one-click button downloads the static PNG in the same house style as the existing 28 published tear sheets.
+- **Lovable:** the interactive Plotly tear sheet renders inline with hover detail, headline stats show as metric tiles, and a one-click button downloads the static PNG in the same house style as the existing 28 published tear sheets. The ticker and benchmark boxes suggest matching symbols as the user types (from a bundled list of US-listed stocks and ETFs plus common indexes, futures, and crypto pairs) while still accepting any symbol typed freely, and a collapsible cheat sheet explains index, futures, and crypto symbol formats in plain language.
 - **Complete:** handles the full happy path plus the realistic failure paths: unknown ticker, benchmark same as ticker, date range too short, and data source outage. All computation reuses quantlib (data.py, metrics.py, tearsheet.py) so numbers match the published sheets exactly.
 
 ## 4. Out of Scope
@@ -54,6 +54,9 @@ A single-page Streamlit web app that turns the existing batch tear sheet pipelin
 5. The PNG download returns the static tear sheet for the exact inputs shown on screen.
 6. `streamlit run` works from a clean clone of the repo with only `pip install -r requirements.txt` (the app folder vendors its own copy of quantlib, no imports from outside the repo).
 7. Repeat generation of the same inputs completes noticeably faster via the local price cache.
+8. Typing a partial symbol (for example NV) in the ticker or benchmark box shows matching suggestions in alphabetical order, and picking one fills the box; typing a symbol absent from the list still works.
+9. The words Yahoo Finance in the intro caption link to the Yahoo Finance website.
+10. A collapsible section near the inputs explains, in plain language, how to type stocks, ETFs, indexes (^GSPC), futures (ES=F), and crypto pairs (BTC-USD).
 
 **Milestones**
 - Phase 1: working local app (inputs, fetch, interactive exhibit, metrics table, error paths)
