@@ -1,23 +1,33 @@
-# Performance and Risk Tear Sheets
+# Performance Tear Sheet Generator
 
-Standalone tear sheets for a range of widely-followed stocks, ETFs, and funds, each measured on its own with no benchmark comparison. Built from real Yahoo Finance adjusted-close data (from 2014, or from the ticker's inception if later, through 2024). Every tear sheet shows the growth of one dollar (log scale), the drawdown-from-peak underwater plot, a rolling six-month Sharpe ratio, a monthly-return heatmap, and the daily-return distribution against a normal curve.
+Live app: [performancesheet.streamlit.app](https://performancesheet.streamlit.app)
 
-The notebook that produces all of these is [`tear_sheets.ipynb`](tear_sheets.ipynb). It runs with no API keys and prints which data path is active.
+Type any Yahoo Finance symbol, optionally pick a benchmark and a date range, and the app builds a full performance and risk tear sheet in the browser: growth of one dollar on a log scale, the drawdown-from-peak underwater plot, a rolling six-month Sharpe ratio, a monthly-return heatmap, and the daily-return distribution against a normal curve, topped with headline metric tiles and a complete statistics table, plus a one-click PNG download in the house style. It handles stocks and ETFs (NVDA, SPY), indexes (^GSPC), futures (ES=F), and crypto pairs (BTC-USD).
 
-## Interactive tear sheet app
+## How it works
 
-Live at [performancesheet.streamlit.app](https://performancesheet.streamlit.app).
+The app ([`app/app.py`](app/app.py)) is a Streamlit front end over three quantlib modules vendored in [`app/quantlib/`](app/quantlib), so a clean clone runs with nothing beyond the pinned requirements:
 
-The [`app/`](app/) folder contains the Streamlit web app behind it, which generates the same house tear sheet on demand for any ticker: type a symbol, optionally pick a benchmark ticker and a date range, and the exhibit renders in the browser with an interactive chart panel, the full metrics table, and a PNG download. Bad tickers get a clear error rather than a chart of fallback data.
+- **Data layer** (`data.py`) downloads Yahoo Finance adjusted closes with retries and local caching, and prints a provenance note for every fetch. When a symbol cannot be fetched it returns clearly labeled synthetic data; the app detects that label and shows an error instead of plotting fake prices.
+- **Metrics** (`metrics.py`) is the single source of truth for every statistic shown: CAGR, annualized volatility, Sharpe, Sortino, Calmar, max drawdown, hit rate, historical VaR and CVaR, best and worst day, skew, and kurtosis.
+- **Renderers** (`tearsheet.py`) draw the same numbers twice: the interactive Plotly dashboard shown on the page, and the static matplotlib figure behind the PNG download.
 
-To run it locally from the repo root:
+The ticker boxes suggest symbols as you type from a curated list of about 700 liquid names ([`app/tickers.csv`](app/tickers.csv): the S&P 500, widely traded ETFs, major ADRs, indexes, futures, and crypto), and still accept any symbol Yahoo recognizes. A collapsible guide on the page explains the symbol formats for newcomers, and bad tickers get a clear error rather than a chart of fallback data.
+
+## Running it yourself
+
+From the repo root:
 
 ```
 pip install -r requirements.txt
 streamlit run "Tear Sheets/app/app.py"
 ```
 
-To deploy it free on [Streamlit Community Cloud](https://share.streamlit.io), point a new app at this repo with `Tear Sheets/app/app.py` as the main file path.
+The public site runs on Streamlit Community Cloud and redeploys automatically on every push to main.
+
+## Gallery: pre-generated tear sheets
+
+The sheets below were batch-generated with the same pipeline by [`tear_sheets.ipynb`](tear_sheets.ipynb) for 28 widely followed stocks, ETFs, and funds, each measured on its own with no benchmark, from 2014 (or the ticker's inception if later) through 2024. The notebook runs with no API keys and prints which data path is active.
 
 ## Summary statistics
 

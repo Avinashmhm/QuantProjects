@@ -2,13 +2,13 @@
 
 Quantitative finance work in Python (pandas, numpy, scipy, statsmodels, matplotlib). The focus is on measuring performance and risk correctly: proper annualization, drawdown and tail-risk statistics, and significance testing rather than bare point estimates.
 
-## 1. Tear sheets
+## 1. Performance tear sheet generator
 
-Standalone performance and risk tear sheets for 28 widely-followed stocks, ETFs, and funds, each built from real Yahoo Finance data. The set covers broad-market baselines (SPY, the S&P 500 index), semiconductor ETFs (SMH, SOXX), AI-themed ETFs (AIQ, BOTZ), AI chip and hardware makers (NVDA, AMD, AVGO, TSM, MU), AI platform and software names (MSFT, GOOGL, AMZN, META, AAPL, ORCL, PLTR), and broadly popular retail-trader names outside that theme (TSLA, GME, AMC, COIN, MSTR, F, DIS, plus small-cap, gold, and silver ETFs).
+A Streamlit web app that builds a full performance and risk tear sheet for any Yahoo Finance symbol: stocks, ETFs, indexes (^GSPC), futures (ES=F), and crypto pairs (BTC-USD), with an optional benchmark overlay, an interactive chart panel, a complete risk table, and a PNG download. The ticker boxes suggest from a curated list of about 700 liquid names as you type, and the numbers come from a shared metrics library so every exhibit is computed the same way.
 
-[View all tear sheets](./Tear%20Sheets)
+Live app: [performancesheet.streamlit.app](https://performancesheet.streamlit.app) | [Code and project folder](./Tear%20Sheets)
 
-Live web app: [performancesheet.streamlit.app](https://performancesheet.streamlit.app) generates the same tear sheet on demand for any ticker, with an optional benchmark comparison.
+The project folder also holds a gallery of 28 pre-generated tear sheets for widely followed stocks, ETFs, and funds, with summary statistics and Newey-West significance tests.
 
 ## Built with
 
