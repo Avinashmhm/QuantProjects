@@ -20,6 +20,14 @@ The project folder also holds the full research notebook behind the app, with da
 
 ![Macro dashboard](./Macro%20Nowcasting/macro_hero_dashboard.png)
 
+## 3. Pairs trading statistical arbitrage backtester
+
+A research notebook that screens 12 large-cap US financials (66 pairs) for cointegration with the Engle-Granger test on rolling 24-month formation windows, filters candidates by Ornstein-Uhlenbeck half-life, and trades z-score entry and exit signals long-short over the following six months, strictly out of sample, with 5 bps per-leg transaction costs. From 2009 to mid-2026 the strategy earns a market-neutral 3.0% CAGR at 4.8% volatility (net Sharpe 0.64, Newey-West t = 2.81, SPY beta -0.01, max drawdown -10.4%), with the edge concentrated in 2009-2012 and its later decay reported rather than hidden. The notebook audits itself for look-ahead leaks, shows the circular in-sample version once as a warning, and closes with threshold grids, cost sweeps, formation-window sensitivity, and regime breakdowns.
+
+[Code and project folder](./Pairs%20Trading)
+
+![Pairs trading dashboard](./Pairs%20Trading/pairs_hero_dashboard.png)
+
 ## Built with
 
 Python, pandas, numpy, scipy, statsmodels, matplotlib, seaborn, plotly, Streamlit.
