@@ -12,7 +12,7 @@ The app ([`app/app.py`](app/app.py)) is a Streamlit front end over three quantli
 - **Metrics** (`metrics.py`) is the single source of truth for every statistic shown: CAGR, annualized volatility, Sharpe, Sortino, Calmar, max drawdown, hit rate, historical VaR and CVaR, best and worst day, skew, and kurtosis.
 - **Renderers** (`tearsheet.py`) draw the same numbers twice: the interactive Plotly dashboard shown on the page, and the static matplotlib figure behind the PNG download.
 
-The ticker boxes suggest symbols as you type from a curated list of about 700 liquid names ([`app/tickers.csv`](app/tickers.csv): the S&P 500, widely traded ETFs, major ADRs, indexes, futures, and crypto), and still accept any symbol Yahoo recognizes. A collapsible guide on the page explains the symbol formats for newcomers, and bad tickers get a clear error rather than a chart of fallback data.
+The ticker boxes suggest symbols as you type from the full US-listed universe ([`app/tickers.csv`](app/tickers.csv): about 13,000 stocks and ETFs from the official exchange symbol directory, plus common indexes, futures, and crypto), and still accept any symbol Yahoo recognizes. A collapsible guide on the page explains the symbol formats for newcomers, and bad tickers get a clear error rather than a chart of fallback data.
 
 ## Running it yourself
 

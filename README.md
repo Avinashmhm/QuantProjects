@@ -4,7 +4,7 @@ Quantitative finance work in Python (pandas, numpy, scipy, statsmodels, matplotl
 
 ## 1. Performance tear sheet generator
 
-A Streamlit web app that builds a full performance and risk tear sheet for any Yahoo Finance symbol: stocks, ETFs, indexes (^GSPC), futures (ES=F), and crypto pairs (BTC-USD), with an optional benchmark overlay, an interactive chart panel, a complete risk table, and a PNG download. The ticker boxes suggest from a curated list of about 700 liquid names as you type, and the numbers come from a shared metrics library so every exhibit is computed the same way.
+A Streamlit web app that builds a full performance and risk tear sheet for any Yahoo Finance symbol: stocks, ETFs, indexes (^GSPC), futures (ES=F), and crypto pairs (BTC-USD), with an optional benchmark overlay, an interactive chart panel, a complete risk table, and a PNG download. The ticker boxes suggest from the full list of about 13,000 US-listed symbols as you type, and the numbers come from a shared metrics library so every exhibit is computed the same way.
 
 Live app: [performancesheet.streamlit.app](https://performancesheet.streamlit.app) | [Code and project folder](./Tear%20Sheets)
 
