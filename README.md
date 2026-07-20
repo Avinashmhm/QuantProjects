@@ -28,7 +28,7 @@ Tests a classic hedge fund idea: find two bank stocks that historically move tog
 
 From 2009 to mid-2026 the strategy earned 3.0% a year at 4.8% volatility while staying essentially immune to stock market direction (net Sharpe 0.64, Newey-West t = 2.81, SPY beta -0.01, worst drawdown -10.4%). Most of the edge came in 2009 to 2012 and faded afterward. The notebook reports that decay instead of hiding it, audits itself for look-ahead leaks, and closes with sensitivity checks on every major parameter.
 
-[Code and project folder](./Pairs%20Trading)
+Live app: [pairsbacktest.streamlit.app](https://pairsbacktest.streamlit.app) | [Code and project folder](./Pairs%20Trading)
 
 ![Pairs trading dashboard](./Pairs%20Trading/pairs_hero_dashboard.png)
 
@@ -38,7 +38,7 @@ Every US public company must file an annual report, called a 10-K, with the SEC.
 
 The project then tests whether either number actually predicted returns. Filings are sorted into thirds by each signal, the stocks' market-beating returns are tracked for the 30 trading days after each filing, and the observed gap between the top and bottom thirds is compared against 1,000 shuffled versions of the signal to see whether it beats pure chance. The verdict on this sample: tone made no measurable difference, but companies that heavily rewrote their filings went on to beat the ones that barely changed them by about 3 percentage points over the next 30 trading days, a gap only 20 in 1,000 shuffles matched. Interestingly that is the reverse of the published finding, so the notebook treats it as a lead to test on more data, not a trading rule, and explains why (small sample, surviving mega caps only, and the decade when the biggest filing rewrites came from companies transforming their businesses).
 
-[Code and project folder](./SEC%20Filings%20NLP)
+Live app: [nlpsignals.streamlit.app](https://nlpsignals.streamlit.app) | [Code and project folder](./SEC%20Filings%20NLP)
 
 ![Event study dashboard](./SEC%20Filings%20NLP/sec_nlp_hero_event_study.png)
 
