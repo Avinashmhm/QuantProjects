@@ -61,7 +61,12 @@ def fetch_prices(tickers: Tuple[str, ...]) -> pd.DataFrame:
 
 # --------------------------------------------------------------------- engine
 def bucket_within_cohort(df: pd.DataFrame, col: str, n_buckets: int) -> pd.Series:
-    """Quantile buckets of a signal within each filing-year cohort (0 = lowest)."""
+    """Quantile buckets of a signal within each filing-year cohort (0 = lowest).
+
+    Ranking is done inside each filing year so tone from different years is never
+    mixed. A year needs at least 3 * n_buckets filings to split; thinner years
+    return NaN (and are dropped by the caller).
+    """
     def _q(x: pd.Series) -> pd.Series:
         if x.notna().sum() < 3 * n_buckets:
             return pd.Series(np.nan, index=x.index)
@@ -139,93 +144,113 @@ with tab_event:
     n_buckets = c3.radio("Buckets", [3, 5], horizontal=True)
     sectors = c4.multiselect("Sectors", sorted(scored["sector"].unique()))
 
-    ev = scored if not sectors else scored[scored["sector"].isin(sectors)]
-    ev = ev.dropna(subset=[sig]).copy()
+    pool = scored if not sectors else scored[scored["sector"].isin(sectors)]
+    ev = pool.dropna(subset=[sig]).copy()
     ev["bucket"] = bucket_within_cohort(ev, sig, n_buckets)
     ev = ev.dropna(subset=["bucket"])
 
-    panel = event_windows(ev, ar, cal, pre=5, post=post)
-    car = panel.cumsum(axis=1)
+    if ev.empty:
+        # Buckets are ranked WITHIN each filing year (so 2016 tone is never compared
+        # against 2024 tone), which needs at least 3 * n_buckets filings in a year.
+        # A single sector has at most 8 companies (one 10-K each per year), so no year
+        # clears the bar and every filing is dropped. Explain it instead of crashing.
+        max_year = int(pool.dropna(subset=[sig]).groupby("cohort_year").size().max() or 0)
+        st.info(
+            f"**This selection is too small to form {n_buckets} buckets.** "
+            f"Filings are ranked into buckets *within each filing year* (so tone from "
+            f"different years is never mixed), which needs at least {3 * n_buckets} "
+            f"filings in a year. The busiest year here has only {max_year}. "
+            f"Pick more than one sector, or clear the sector filter for the full "
+            f"universe, to see the event study. (Most pairs of sectors are enough.)"
+        )
+    else:
+        panel = event_windows(ev, ar, cal, pre=5, post=post)
+        car = panel.cumsum(axis=1)
 
-    if len(panel) < 30:
-        st.warning("Fewer than 30 usable events with this filter; results are noise.")
+        if len(panel) < 30:
+            st.warning("Fewer than 30 usable events with this filter; treat the "
+                       "result as noise rather than evidence.")
 
-    fig = go.Figure()
-    labels = ({0: "T1 (lowest)", n_buckets - 1: f"T{n_buckets} (highest)"}
-              if n_buckets > 3 else {0: "T1 (lowest)", 1: "T2", 2: "T3 (highest)"})
-    for k in range(n_buckets):
-        rows = car.loc[car.index.intersection(ev.index[ev["bucket"] == k])]
-        if rows.empty:
-            continue
-        mean = 100 * rows.mean(axis=0)
-        band = 100 * 1.96 * rows.std(axis=0) / np.sqrt(len(rows))
-        color = BUCKET_COLORS[0] if k == 0 else (
-            BUCKET_COLORS[2] if k == n_buckets - 1 else GRAY)
-        name = labels.get(k, f"T{k + 1}")
-        fig.add_trace(go.Scatter(x=list(mean.index), y=list(mean + band),
-                                 mode="lines", line=dict(width=0), showlegend=False,
-                                 hoverinfo="skip"))
-        fig.add_trace(go.Scatter(x=list(mean.index), y=list(mean - band),
-                                 mode="lines", line=dict(width=0), fill="tonexty",
-                                 fillcolor=color.replace(")", ",0.12)").replace(
-                                     "rgb", "rgba") if color.startswith("rgb")
-                                 else f"rgba{tuple(list(int(color[i:i+2], 16) for i in (1, 3, 5)) + [0.12])}",
-                                 showlegend=False, hoverinfo="skip"))
-        fig.add_trace(go.Scatter(x=list(mean.index), y=list(mean), mode="lines",
-                                 line=dict(color=color, width=2.4),
-                                 name=f"{name} (n={len(rows)})",
-                                 hovertemplate="day %{x}: %{y:.2f}%<extra></extra>"))
-    fig.add_vline(x=0, line_dash="dot", line_color=GRAY)
-    fig.add_hline(y=0, line_color=GRAY, line_width=1)
-    fig.update_layout(template="plotly_white", height=480,
-                      title=f"Cumulative abnormal return by {SIGNALS[sig]} bucket",
-                      xaxis_title="trading days relative to filing day 0",
-                      yaxis_title="mean CAR (%), market-adjusted vs SPY")
-    st.plotly_chart(fig, width="stretch")
+        fig = go.Figure()
+        labels = ({0: "T1 (lowest)", n_buckets - 1: f"T{n_buckets} (highest)"}
+                  if n_buckets > 3 else {0: "T1 (lowest)", 1: "T2", 2: "T3 (highest)"})
+        for k in range(n_buckets):
+            rows = car.loc[car.index.intersection(ev.index[ev["bucket"] == k])]
+            if rows.empty:
+                continue
+            mean = 100 * rows.mean(axis=0)
+            band = 100 * 1.96 * rows.std(axis=0) / np.sqrt(len(rows))
+            color = BUCKET_COLORS[0] if k == 0 else (
+                BUCKET_COLORS[2] if k == n_buckets - 1 else GRAY)
+            name = labels.get(k, f"T{k + 1}")
+            fig.add_trace(go.Scatter(x=list(mean.index), y=list(mean + band),
+                                     mode="lines", line=dict(width=0), showlegend=False,
+                                     hoverinfo="skip"))
+            fig.add_trace(go.Scatter(x=list(mean.index), y=list(mean - band),
+                                     mode="lines", line=dict(width=0), fill="tonexty",
+                                     fillcolor=f"rgba{tuple(list(int(color[i:i+2], 16) for i in (1, 3, 5)) + [0.12])}",
+                                     showlegend=False, hoverinfo="skip"))
+            fig.add_trace(go.Scatter(x=list(mean.index), y=list(mean), mode="lines",
+                                     line=dict(color=color, width=2.4),
+                                     name=f"{name} (n={len(rows)})",
+                                     hovertemplate="day %{x}: %{y:.2f}%<extra></extra>"))
+        fig.add_vline(x=0, line_dash="dot", line_color=GRAY)
+        fig.add_hline(y=0, line_color=GRAY, line_width=1)
+        fig.update_layout(template="plotly_white", height=480,
+                          title=f"Cumulative abnormal return by {SIGNALS[sig]} bucket",
+                          xaxis_title="trading days relative to filing day 0",
+                          yaxis_title="mean CAR (%), market-adjusted vs SPY")
+        st.plotly_chart(fig, width="stretch")
 
-    # per-bucket stats + spread
-    car_final = car.iloc[:, -1]
-    stats_rows = []
-    for k in range(n_buckets):
-        vals = car_final.loc[car_final.index.intersection(ev.index[ev["bucket"] == k])]
-        if len(vals) < 2:
-            continue
-        t, p = stats.ttest_1samp(vals, 0.0)
-        stats_rows.append({"bucket": labels.get(k, f"T{k + 1}"), "events": len(vals),
-                           "mean CAR %": 100 * vals.mean(), "t-stat": t, "p-value": p})
-    top = car_final.loc[car_final.index.intersection(ev.index[ev["bucket"] == n_buckets - 1])]
-    bot = car_final.loc[car_final.index.intersection(ev.index[ev["bucket"] == 0])]
-    if len(top) > 1 and len(bot) > 1:
-        t, p = stats.ttest_ind(top, bot, equal_var=False)
-        stats_rows.append({"bucket": "Top minus bottom", "events": len(top) + len(bot),
-                           "mean CAR %": 100 * (top.mean() - bot.mean()),
-                           "t-stat": t, "p-value": p})
-    st.dataframe(pd.DataFrame(stats_rows).set_index("bucket").round(3),
-                 width="stretch")
+        # per-bucket stats + spread
+        car_final = car.iloc[:, -1]
+        stats_rows = []
+        for k in range(n_buckets):
+            vals = car_final.loc[car_final.index.intersection(ev.index[ev["bucket"] == k])]
+            if len(vals) < 2:
+                continue
+            t, p = stats.ttest_1samp(vals, 0.0)
+            stats_rows.append({"bucket": labels.get(k, f"T{k + 1}"), "events": len(vals),
+                               "mean CAR %": 100 * vals.mean(), "t-stat": t, "p-value": p})
+        top = car_final.loc[car_final.index.intersection(ev.index[ev["bucket"] == n_buckets - 1])]
+        bot = car_final.loc[car_final.index.intersection(ev.index[ev["bucket"] == 0])]
+        if len(top) > 1 and len(bot) > 1:
+            t, p = stats.ttest_ind(top, bot, equal_var=False)
+            stats_rows.append({"bucket": "Top minus bottom", "events": len(top) + len(bot),
+                               "mean CAR %": 100 * (top.mean() - bot.mean()),
+                               "t-stat": t, "p-value": p})
+        if stats_rows:
+            st.dataframe(pd.DataFrame(stats_rows).set_index("bucket").round(3),
+                         width="stretch")
+        else:
+            st.caption("Not enough events per bucket to tabulate bucket statistics.")
 
-    ic_series, ic_sum = yearly_ic(scored if not sectors else ev, sig)
-    lc, rc = st.columns([1.4, 1])
-    with lc:
-        icfig = go.Figure(go.Bar(x=list(ic_series.index), y=list(ic_series.values),
-                                 marker_color=BLUE))
-        icfig.add_hline(y=float(ic_series.mean()) if len(ic_series) else 0,
-                        line_dash="dash", line_color=NAVY)
-        icfig.update_layout(template="plotly_white", height=320,
-                            title="Information coefficient by filing year",
-                            xaxis_title="filing year",
-                            yaxis_title="Spearman IC vs +1..+63d return")
-        st.plotly_chart(icfig, width="stretch")
-    with rc:
-        st.metric("Mean yearly IC", f"{ic_sum['mean']:+.3f}" if pd.notna(ic_sum["mean"]) else "n/a")
-        st.metric("t-statistic", f"{ic_sum['t']:.2f}" if pd.notna(ic_sum["t"]) else "n/a")
-        if pd.notna(ic_sum["p"]):
-            verdict = ("statistically significant at 5%" if ic_sum["p"] < 0.05 else
-                       "not distinguishable from zero")
-            st.write(f"95% CI [{ic_sum['lo']:+.3f}, {ic_sum['hi']:+.3f}], "
-                     f"p = {ic_sum['p']:.3f}: **{verdict}** on this sample.")
-        st.caption("With ~10 yearly observations only a large, steady IC clears "
-                   "conventional significance. A null is the expected honest result "
-                   "at this sample size.")
+        ic_series, ic_sum = yearly_ic(ev, sig)
+        lc, rc = st.columns([1.4, 1])
+        with lc:
+            icfig = go.Figure(go.Bar(x=list(ic_series.index), y=list(ic_series.values),
+                                     marker_color=BLUE))
+            icfig.add_hline(y=float(ic_series.mean()) if len(ic_series) else 0,
+                            line_dash="dash", line_color=NAVY)
+            icfig.update_layout(template="plotly_white", height=320,
+                                title="Information coefficient by filing year",
+                                xaxis_title="filing year",
+                                yaxis_title="Spearman IC vs +1..+63d return")
+            st.plotly_chart(icfig, width="stretch")
+        with rc:
+            st.metric("Mean yearly IC", f"{ic_sum['mean']:+.3f}" if pd.notna(ic_sum["mean"]) else "n/a")
+            st.metric("t-statistic", f"{ic_sum['t']:.2f}" if pd.notna(ic_sum["t"]) else "n/a")
+            if pd.notna(ic_sum["p"]):
+                verdict = ("statistically significant at 5%" if ic_sum["p"] < 0.05 else
+                           "not distinguishable from zero")
+                st.write(f"95% CI [{ic_sum['lo']:+.3f}, {ic_sum['hi']:+.3f}], "
+                         f"p = {ic_sum['p']:.3f}: **{verdict}** on this sample.")
+            else:
+                st.write("Too few filing years in this selection to estimate a "
+                         "reliable information coefficient.")
+            st.caption("With ~10 yearly observations only a large, steady IC clears "
+                       "conventional significance. A null is the expected honest result "
+                       "at this sample size.")
 
 # ------------------------------------------------------- company explorer tab
 with tab_company:
@@ -290,6 +315,11 @@ The **event study** tab checks what happened to each stock in the days after it 
 compared with the market (SPY). Filings are grouped into buckets by tone or change,
 and the chart shows the average market-adjusted path per bucket. If the top bucket
 reliably beats the bottom one, the signal carries information.
+
+Buckets are formed *within each filing year*, so tone from different years is never
+mixed. That needs enough filings per year, which is why the sector filter works best
+with more than one sector (or the full universe): a single sector has only a handful
+of companies, too few to split a year into buckets.
 
 ### How to read the numbers
 
